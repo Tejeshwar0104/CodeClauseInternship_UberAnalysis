@@ -1,0 +1,49 @@
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from keras.models import Sequential
+from keras.layers import Dense
+from sklearn.metrics import mean_squared_error
+
+data = pd.read_csv("C:/Users/WELCOME/OneDrive/Documents/INTERNSHIP/uber.csv")
+data.head()
+
+data.isnull().sum()
+
+df = data.dropna()
+
+df.isnull().sum()
+
+X = df.drop(['Unnamed: 0','pickup_datetime','fare_amount','key'],axis = 1)
+Y = df['fare_amount']
+
+X
+
+Y
+
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size = 0.3,random_state = 42)
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+model = Sequential()
+model.add(Dense(64,activation = 'relu',input_dim = X_train.shape[1]))
+model.add(Dense(32,activation = 'relu'))
+model.add(Dense(1,activation = 'linear'))
+
+model.compile(optimizer = 'adam',loss = 'mean_squared_error')
+
+model.fit(X_train_scaled,Y_train,epochs = 100,batch_size = 32,verbose = 1)
+
+pred = model.predict(X_test_scaled)
+pred
+
+mse = mean_squared_error(Y_test,pred)
+mse
+
+example = pd.DataFrame({'pickup_longitude':[-75.544764],'pickup_latitude':[60.548649],'dropoff_longitude':[-72.548446],'dropoff_latitude':[-55.684976],'passenger_count':[3]})
+example_process = scaler.transform(example)
+
+model.predict(example_process)
